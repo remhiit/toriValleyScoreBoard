@@ -1,7 +1,9 @@
 import type { AddPlayerUseCase } from '../../application/addPlayerUseCase'
 import type { DeletePlayerUseCase } from '../../application/deletePlayerUseCase'
 import type { GetPlayersUseCase } from '../../application/getPlayersUseCase'
+import { NotFoundError, ValidationError } from '../../domain/model/errors'
 import type { Player } from '../../domain/model/player'
+import i18n from '../../i18n'
 import type { HomeState } from './homeTypes'
 
 export const MAX_MATCH_PLAYERS = 4
@@ -54,6 +56,8 @@ export function homeReducer(state: HomeState, action: HomeAction): HomeState {
 }
 
 function errorMessage(e: unknown): string {
+  if (e instanceof ValidationError && e.code) return i18n.t(e.code, e.params)
+  if (e instanceof NotFoundError && e.code) return i18n.t(e.code, { id: e.id })
   return e instanceof Error ? e.message : String(e)
 }
 
