@@ -6,7 +6,7 @@ Torī Valley Scoreboard is a score calculator for the physical board game _La Va
 
 1. **Home** — add the players around the table (names only, reused across matches), then select 1–4 of them and tap **Start match**.
 2. **Match setup** (`MatchSetup`) — pick which Objectif card variant (A/B/C) was dealt for each of the 5 landscapes. Everything defaults to `A`, so the screen can be confirmed as-is. The Torī card is always in play and has nothing to pick. Tap **Start match**; **Back** returns to Home with the players still selected.
-3. **Score entry** (`ScoreDetail`) — for each selected player, enter what they ended the game with: Torī counts per color, their Objectif card results per landscape, their Parchemin value (if any), and who (if anyone) holds the Pinceau. Each player's total VP updates live. Tap **Save match**.
+3. **Score entry** (`ScoreDetail`) — for each selected player, enter what they ended the game with: Torī counts per color, their Parchemin value (if any), who (if anyone) holds the Pinceau, and for each landscape the counts its Objectif card asks for (the points are computed from them; any landscape can be switched to a hand-typed total). Each player's total VP updates live. Tap **Save match**.
 4. **History** — browse past matches, see final scores and the winner (🏆), edit a match's entered results, delete it, or export the whole history as a file for [Scoreo](https://github.com/remhiit/scoreo). Editing goes back through **Match setup** first, showing the variants that match was recorded with.
 
 ## Language
