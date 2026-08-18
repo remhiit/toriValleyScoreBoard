@@ -32,7 +32,7 @@ export function HomeScreen({
   }, [])
 
   function handleAddPlayer() {
-    dispatch(submitAddPlayer(addPlayer, getPlayers, state))
+    dispatch(submitAddPlayer(addPlayer, getPlayers, state, t))
   }
 
   function handleDeletePlayer(id: string) {
