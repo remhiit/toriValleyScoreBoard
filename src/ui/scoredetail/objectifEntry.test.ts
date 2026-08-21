@@ -44,11 +44,20 @@ describe('guided Objectif entry', () => {
     expect(scorePlayerResult(next.results[0])).toBe(15)
   })
 
-  it('holds at zero while a required input is still missing rather than erroring', () => {
+  it('counts an untouched field as the zero the form shows for it', () => {
     const cards = { ...defaultObjectifCardSelection(), bamboo: 'B' } as const
     const next = scoreDetailReducer(stateWith(cards), inputAction('bamboo', 'groupsOf2', 2))
 
-    // groupsOf3 / groupsOf4 not entered yet
+    // groupsOf3 / groupsOf4 never touched — they render as 0, so they score as 0
+    // rather than making the whole card fall back to a silent 0.
+    expect(next.results[0].objectifPoints.bamboo).toBe(8)
+    expect(next.error).toBeUndefined()
+  })
+
+  it('holds the landscape at zero when a count is outside the card bounds', () => {
+    const cards = { ...defaultObjectifCardSelection(), bamboo: 'B' } as const
+    const next = scoreDetailReducer(stateWith(cards), inputAction('bamboo', 'groupsOf2', 999))
+
     expect(next.results[0].objectifPoints.bamboo).toBe(0)
     expect(next.error).toBeUndefined()
   })
@@ -134,6 +143,48 @@ describe('manual override', () => {
 
     expect(state.results[0].objectifManual.village).toBe(true)
     expect(state.results[0].objectifManual.water).toBe(true)
+    expect(state.results[0].objectifManual.bamboo).toBe(false)
+  })
+})
+
+describe('a match saved before guided entry existed', () => {
+  /** Totals stored, nothing counted behind them — what old localStorage holds. */
+  function legacyResult() {
+    return {
+      ...emptyPlayerResult('p1'),
+      objectifPoints: { bamboo: 12, cherryBlossom: 0, mountain: 0, water: 0, village: 0 },
+    }
+  }
+
+  function editing() {
+    return buildInitialState(
+      players,
+      { type: 'Edit', matchId: 'm1' },
+      [legacyResult()],
+      defaultObjectifCardSelection(),
+    )
+  }
+
+  it('opens its unbacked totals as hand-typed rather than as computed', () => {
+    expect(editing().results[0].objectifManual.bamboo).toBe(true)
+  })
+
+  it('keeps the stored total, so reopening a match never rescores it', () => {
+    expect(editing().results[0].objectifPoints.bamboo).toBe(12)
+  })
+
+  it('does not touch a landscape that was genuinely scored as zero', () => {
+    expect(editing().results[0].objectifManual.cherryBlossom).toBe(false)
+  })
+
+  it('leaves a guided landscape guided when its counts were recorded', () => {
+    const computed = {
+      ...emptyPlayerResult('p1'),
+      objectifPoints: { bamboo: 15, cherryBlossom: 0, mountain: 0, water: 0, village: 0 },
+      objectifInputs: { ...emptyPlayerResult('p1').objectifInputs, bamboo: { groups: 3 } },
+    }
+    const state = buildInitialState(players, { type: 'Edit', matchId: 'm1' }, [computed])
+
     expect(state.results[0].objectifManual.bamboo).toBe(false)
   })
 })

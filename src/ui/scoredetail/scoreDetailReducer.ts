@@ -15,14 +15,25 @@ import type { ToriiColor } from '../../domain/model/torii'
 import type { ScoreDetailMode, ScoreDetailState } from './scoreDetailTypes'
 
 /**
- * The two neighbour-dependent cards can never be computed, so a result starts
- * with those landscapes already on manual entry — the player is never shown a
- * guided form that couldn't work.
+ * Landscapes that must open on manual entry:
+ *
+ * - the two neighbour-dependent cards, which can never be computed, so the
+ *   player is never shown a guided form that couldn't work;
+ * - a landscape carrying points with no inputs behind them. That is what a
+ *   match saved before guided entry existed looks like: the total was typed by
+ *   hand, and nothing was ever counted. Opening it as a *guided* card would
+ *   show those points above a form reading all zeros, and the first keystroke
+ *   would recompute the landscape from those zeros — silently discarding the
+ *   score the match was actually saved with.
  */
 function withForcedManual(result: PlayerResult, cards: ObjectifCardSelection): PlayerResult {
   const objectifManual = { ...result.objectifManual }
   for (const landscape of LANDSCAPE_TYPES) {
-    if (!objectifCard(landscape, cards[landscape]).computable) objectifManual[landscape] = true
+    const uncomputable = !objectifCard(landscape, cards[landscape]).computable
+    const unbackedTotal =
+      result.objectifPoints[landscape] !== 0 &&
+      Object.keys(result.objectifInputs[landscape]).length === 0
+    if (uncomputable || unbackedTotal) objectifManual[landscape] = true
   }
   return { ...result, objectifManual }
 }
@@ -43,18 +54,28 @@ export function buildInitialState(
 }
 
 /**
- * Points for one landscape from its entered counts. While the player is still
- * filling a multi-field card the inputs are legitimately incomplete, so an
- * invalid set scores 0 rather than raising — validation is the domain's job at
- * save time, not a reason to shout on every keystroke.
+ * Points for one landscape from its entered counts.
+ *
+ * Every field the card declares is rendered, and an untouched one shows `0`, so
+ * a key the player never touched means "zero of those", not "unanswered". The
+ * record is completed from the card's own descriptor before scoring, which
+ * keeps the number on screen, the number computed and the number saved the
+ * same one — a partly-filled card can't quietly persist a 0 it never displayed.
+ *
+ * The guard remains for values the domain rejects outright (a count past the
+ * card's bound): those hold the landscape at 0 rather than raising mid-keystroke.
  */
 function computeLandscapePoints(
   landscape: LandscapeType,
   cards: ObjectifCardSelection,
   inputs: ObjectifCardInputs,
 ): number {
+  const card = objectifCard(landscape, cards[landscape])
+  const complete: ObjectifCardInputs = {}
+  for (const field of card.fields) complete[field.key] = inputs[field.key] ?? 0
+
   try {
-    return scoreObjectifCard(landscape, cards[landscape], inputs)
+    return scoreObjectifCard(landscape, cards[landscape], complete)
   } catch {
     return 0
   }

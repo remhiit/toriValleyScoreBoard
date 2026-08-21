@@ -17,6 +17,6 @@ See the individual feature docs for detail:
 
 - [`features/players.md`](features/players.md)
 - [`features/scoring.md`](features/scoring.md)
-- [`features/objectif-cards.md`](features/objectif-cards.md) — transcription of the 16 physical cards; the selection is recorded per match, but nothing computes points from it yet
+- [`features/objectif-cards.md`](features/objectif-cards.md) — transcription of the 16 physical cards; 13 of them are scored from the counts entered at score entry, the other two stay hand-typed
 - [`features/history.md`](features/history.md)
 - [`features/export.md`](features/export.md)

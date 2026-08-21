@@ -18,6 +18,10 @@ The card texts are transcribed in [`objectif-cards.md`](objectif-cards.md), and 
 
 **Every card keeps a manual override.** Ticking "enter the total by hand" swaps the guided fields for a total field, and the typed value wins. Un-ticking it recomputes from whatever counts were already entered. This is the escape hatch if a transcribed table turns out to be wrong.
 
+**An untouched count reads as zero.** Every field the card declares is shown, and one nobody typed in displays `0`, so it scores as `0` — a half-filled card scores what its form actually says rather than falling back to a total the screen never showed. A count entered outside the card's bounds holds that landscape at 0 until it's corrected.
+
+**Matches saved before guided entry open as hand-typed.** Such a result carries per-landscape totals with no counts behind them, so those landscapes start with the manual override already ticked, showing the stored total. Presenting them as guided would put the old points above a form reading all zeros, and the first keystroke would rescore the landscape from those zeros. Un-ticking the override is then a deliberate act: it recomputes from whatever is in the form.
+
 Whichever route a landscape took, the resulting points land in `PlayerResult.objectifPoints`, which stays the single source of the total for `scorePlayerResult()`. The counts themselves are kept in `objectifInputs` so reopening a match in edit mode shows what was typed, and `objectifManual` records which landscapes were overridden.
 
 ## Parchemin (manual selection)
